@@ -1,0 +1,43 @@
+name: auth-mailpit-stack
+
+services:
+  auth-mailpit:
+    image: ghcr.io/axllent/mailpit:latest
+    restart: unless-stopped
+    init: true
+
+    networks:
+      - paradox_net
+
+    # DEV default:
+    # - SMTP sink on localhost:1025
+    # - UI on localhost:8025
+    # In staging use either:
+    # - no host ports (internal-only), or
+    # - 127.0.0.1 binding via override compose file.
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+    volumes:
+      - ./data:/data
+
+    environment:
+      MP_SMTP: "0.0.0.0:1025"
+      MP_LISTEN: "0.0.0.0:8025"
+      MP_SMTP_AUTH_ACCEPT_ANY: "true" # DEV-only
+      MP_SMTP_AUTH_ALLOW_INSECURE: "true" # DEV-only
+      MP_MAX: "1000"
+      MP_DATABASE: "/data/mailpit.db"
+      MP_LOG_FILE: "/data/mailpit.log"
+
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+networks:
+  paradox_net:
+    external: true

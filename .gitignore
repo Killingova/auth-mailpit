@@ -1,0 +1,6 @@
+# Runtime env
+.env
+.env.local
+
+# Mailpit runtime artifacts
+data/*
