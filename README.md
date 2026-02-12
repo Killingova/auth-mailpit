@@ -2,6 +2,11 @@
 
 DEV/STAGING Mail-Sandbox auf Basis von Mailpit fuer Auth- und Plattform-Tests.
 
+## Aktueller Stand (2026-02-12 14:37:47 CET)
+- Container `auth-mailpit-stack-auth-mailpit-1` laeuft `healthy`.
+- UI-Check `http://127.0.0.1:8025/` liefert `200`.
+- SMTP-Sink ist lokal auf Port `1025` aktiv.
+
 ## Boundary
 - Nur fuer `DEV/LOCAL/STAGING`.
 - Kein Production-MTA, kein MX, kein externer Mailversand.
