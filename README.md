@@ -2,17 +2,23 @@
 
 DEV/STAGING Mail-Sandbox auf Basis von Mailpit fuer Auth- und Plattform-Tests.
 
-## Aktueller Stand (2026-02-12 14:37:47 CET)
+## Zweck / Boundary
+- Lokaler SMTP-Fangdienst fuer DEV/LOCAL/STAGING.
+- Kein Production-MTA, kein MX, kein externer Mailversand.
+- Keine Provider-Secrets in diesem Repo speichern.
+
+## Aktueller Stand (2026-02-12 15:32:39 CET)
 - Container `auth-mailpit-stack-auth-mailpit-1` laeuft `healthy`.
 - UI-Check `http://127.0.0.1:8025/` liefert `200`.
 - SMTP-Sink ist lokal auf Port `1025` aktiv.
 
-## Boundary
-- Nur fuer `DEV/LOCAL/STAGING`.
-- Kein Production-MTA, kein MX, kein externer Mailversand.
-- Keine Provider-Secrets in diesem Repo speichern.
+## Security Contract
+- Mailpit ist nur Sandbox, nicht fuer echten Versand.
+- SMTP-Auth im DEV-Modus (`MP_SMTP_AUTH_ACCEPT_ANY=1`) ist nicht production-tauglich.
+- UI in Staging nicht public exponieren (nur internal/allowlist).
 
-## Start
+## Ops
+### Start
 ```bash
 cd /home/devops/auth-mailpit
 docker compose up -d
@@ -22,7 +28,7 @@ docker compose ps
 UI: `http://localhost:8025`  
 SMTP sink: `localhost:1025`
 
-## Health
+### Health
 ```bash
 docker compose ps
 curl -I http://127.0.0.1:8025
@@ -30,7 +36,7 @@ curl -I http://127.0.0.1:8025
 
 Erwartung: Service ist `healthy`, UI liefert `200` oder `302`.
 
-## Smoke Test (SMTP)
+## DoD Checks
 ```bash
 swaks \
   --server 127.0.0.1:1025 \
@@ -62,7 +68,7 @@ SMTP_PASS_FILE=/run/secrets/smtp_password
 SMTP_FROM=no-reply@your-domain.tld
 ```
 
-## Ops
+### Logs / Stop / Reset
 ```bash
 # Logs
 docker compose logs -f auth-mailpit
@@ -75,8 +81,7 @@ docker compose down
 rm -f data/mailpit.db data/mailpit.log
 ```
 
-## Security Notes
-- `MP_SMTP_AUTH_ACCEPT_ANY=1` ist nur fuer DEV gesetzt.
-- In Staging UI nicht public exponieren (internal-only oder allowlist).
-- Mail-Inhalte koennen PII enthalten; Zugriff entsprechend einschraenken.
-- Keine Redirect-Open-URI Muster in Verify/Magic-Links zulassen (Service-seitig).
+## Guardrails
+- `auth-mailpit` bleibt DEV/STAGING-only.
+- Keine produktiven SMTP-Credentials im Repo.
+- Mail-Inhalte koennen PII enthalten, Zugriff strikt begrenzen.
